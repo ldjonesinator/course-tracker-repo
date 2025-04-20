@@ -1,17 +1,94 @@
-#include <> // Library for LCD
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h> // Library for LCD
+using namespace std;
 
-int CATAGORY_SIZE = 5
 
-string CATAGORIES[CATAGORY_SIZE] = {'ENEL200', 'ENEL220', 'ENEL270', 'ENEL280', 'EMTH210'}
-int cat_times[CATAGORY_SIZE] = {0, 0, 0, 0, 0}
+LiquidCrystal_I2C lcd(0x27,16,2);  // 16 chars and 2 line display
 
+
+int CENTRE_OF_DISPLAY = 8;
+
+int CATAGORY_SIZE = 5;
+const char CATAGORIES[5] = {'ENEL200', 'ENEL220', 'ENEL270', 'ENEL280', 'EMTH210'};
+int cat_times[5] = {0, 0, 0, 0, 0}; // time in seconds
+
+long timer = 0; // timer for seconds
+
+int getDisplaySpacing(String text) {
+  // returns the amount of indentation required to centre the text
+
+  return CENTRE_OF_DISPLAY - text.length() / 2;
+
+}
+
+String getFixedNumberLength(int num, int required_char_amnt) {
+  // returns the same number with zeros in front to reach the required amount of characters
+
+  String zeros = "";
+  for (int i = 0; i < required_char_amnt - String(num).length(); i++) {
+    zeros += "0";
+
+  }
+  
+  // Serial.print("Number ");
+  // Serial.print(num);
+  // Serial.print(" Length ");
+  // Serial.print(String(num).length());
+  // Serial.print(" Req ");
+  // Serial.print(required_char_amnt);
+  // Serial.print(" diff ");
+  // Serial.println(required_char_amnt - String(num).length());
+
+  return zeros + String(num);
+   
+}
+
+String getTimerDisplayFormat(long timer) {
+  // takes timer value in seconds and outputs time in hours:minutes
+
+  long hours = timer / 3600;
+  int minutes = (timer - 3600 * hours) / 60;
+  int seconds = timer - (3600 * hours + 60 * minutes);
+
+  // Serial.print(hours);
+  // Serial.print(" ");
+  // Serial.print(minutes);
+  // Serial.print(" ");
+  // Serial.print(timer - 3600 * hours);
+  // Serial.print(" ");
+  // Serial.println(seconds);
+
+  return getFixedNumberLength(hours, 2) + ":" + getFixedNumberLength(minutes, 2) + ":" + getFixedNumberLength(seconds, 2);
+  
+}
 
 void setup() {
-  // put  your setup code here, to run once:
+
+  lcd.init();
+  lcd.backlight();
+
+
+  // TESTING
+
+  Serial.begin(9600);
+  Serial.println("Starting up");
+
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
+  String timer_format = getTimerDisplayFormat(timer);
+
+  lcd.clear();
+
+  lcd.setCursor(getDisplaySpacing("ENEL220"),0);
+  lcd.print("ENEL220");
+
+  lcd.setCursor(getDisplaySpacing(timer_format), 1);
+  lcd.print(timer_format);
+
+  delay(1000); // loop every second
+  timer += 1;
 
 }
