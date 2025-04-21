@@ -12,7 +12,7 @@ int CATAGORY_SIZE = 5;
 const char CATAGORIES[5] = {'ENEL200', 'ENEL220', 'ENEL270', 'ENEL280', 'EMTH210'};
 int cat_times[5] = {0, 0, 0, 0, 0}; // time in seconds
 
-long timer = 0; // timer for seconds
+unsigned long timer = 1559990; // timer for seconds
 
 int getDisplaySpacing(String text) {
   // returns the amount of indentation required to centre the text
@@ -23,6 +23,11 @@ int getDisplaySpacing(String text) {
 
 String getFixedNumberLength(int num, int required_char_amnt) {
   // returns the same number with zeros in front to reach the required amount of characters
+
+  if (String(num).length() >= required_char_amnt) { // error prevention with unsigned numbers
+    return String(num);
+
+  }
 
   String zeros = "";
   for (int i = 0; i < required_char_amnt - String(num).length(); i++) {
@@ -46,17 +51,15 @@ String getFixedNumberLength(int num, int required_char_amnt) {
 String getTimerDisplayFormat(long timer) {
   // takes timer value in seconds and outputs time in hours:minutes
 
-  long hours = timer / 3600;
-  int minutes = (timer - 3600 * hours) / 60;
-  int seconds = timer - (3600 * hours + 60 * minutes);
+  int hours = timer / 3600;
+  int minutes = (timer % 3600) / 60;
+  int seconds = (timer % 3600) % 60;
 
-  // Serial.print(hours);
-  // Serial.print(" ");
-  // Serial.print(minutes);
-  // Serial.print(" ");
-  // Serial.print(timer - 3600 * hours);
-  // Serial.print(" ");
-  // Serial.println(seconds);
+  Serial.print(hours);
+  Serial.print(" ");
+  Serial.print(minutes);
+  Serial.print(" ");
+  Serial.println(seconds);
 
   return getFixedNumberLength(hours, 2) + ":" + getFixedNumberLength(minutes, 2) + ":" + getFixedNumberLength(seconds, 2);
   
