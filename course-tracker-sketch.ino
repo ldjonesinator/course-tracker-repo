@@ -12,7 +12,8 @@ int CATAGORY_SIZE = 5;
 const char CATAGORIES[5] = {'ENEL200', 'ENEL220', 'ENEL270', 'ENEL280', 'EMTH210'};
 int cat_times[5] = {0, 0, 0, 0, 0}; // time in seconds
 
-unsigned long timer = 1559990; // timer for seconds
+
+unsigned long timer = 0; // timer for seconds
 
 int getDisplaySpacing(String text) {
   // returns the amount of indentation required to centre the text
