@@ -2,9 +2,6 @@
 
 #include "button.h"
 
-const uint32_t LONG_PRESS_TIME = 3000; // 3 seconds
-const uint8_t BOUNCE_DELAY = 100;
-const uint8_t MAX_BUTTONS = 10;
 static Button* allButtons[MAX_BUTTONS];
 static uint8_t numButtons = 0;
 
@@ -18,7 +15,7 @@ static void registerButton(Button* button) {
 }
 
 // sets the start time for a button
-static void setTimerStart(String label) {
+static void setTimerStart(char label) {
     // updates the start time if the button is pressed
     size_t i = 0;
     bool isFound = false;
@@ -32,7 +29,7 @@ static void setTimerStart(String label) {
 }
 
 // updates the button state and start time
-static void updateButton(String label, bool isPressed) {
+static void updateButton(char label, bool isPressed) {
     size_t i = 0;
     bool isFound = false;
     while (i < numButtons && !isFound) { // assumes this label is unique and picks the first one found
@@ -46,7 +43,7 @@ static void updateButton(String label, bool isPressed) {
 }
 
 // Initialises a button in the default state
-void initialiseButton(Button* button, String label, uint8_t pin) {
+void initialiseButton(Button* button, char label, uint8_t pin) {
     // sets the button label, puts button in default state and registers it
     button->label = label;
     button->pin = pin;
@@ -56,26 +53,44 @@ void initialiseButton(Button* button, String label, uint8_t pin) {
     registerButton(button);
 }
 
+// checks a button to see if its been long pressed
+void updateLongPress(char label) {
+    size_t i = 0;
+    bool isFound = false;
+    while (i < numButtons && !isFound) { // assumes this label is unique and picks the first one found
+        if (allButtons[i]->label == label) {
+            if (allButtons[i]->pressed && millis() - allButtons[i]->startTime >= LONG_PRESS_TIME) {
+                allButtons[i]->longPress = true;
+            } else {
+                allButtons[i]->longPress = false;
+            }
+            isFound = true;
+        }
+        i ++;
+    }
+}
+
 // checks if a button is clicked and updates its state and returns true if it was clicked
 bool isButClicked(Button* button) {
     if (millis() - button->startTime > BOUNCE_DELAY) { // 50 ms to account for bouncing
         if (digitalRead(button->pin) == HIGH && !button->pressed) {
-            updateButton(button->label, HIGH);
+            updateButton(button->label, true);
         } else if (digitalRead(button->pin) == LOW && button->pressed) {
-            updateButton(button->label, LOW);
-            return true;
+            updateButton(button->label, false);
+            if (!button->longPress) {
+                return true;
+            }
         }
     }
     return false;
 }
 
-// checks every button to see if its been long pressed
-void updateLongPresses() {
-    for (size_t i = 0; i < numButtons; i ++) {
-        if (allButtons[i]->pressed && millis() - allButtons[i]->startTime >= LONG_PRESS_TIME) {
-            allButtons[i]->longPress = true;
-        } else {
-            allButtons[i]->longPress = false;
-        }
+bool isLongPressed(Button* button) {
+    if (button->pressed && !button->longPress) {
+        updateLongPress(button->label);
+    } else if (!button->pressed && button->longPress) {
+        updateLongPress(button->label);
+        return true;
     }
+    return false;
 }

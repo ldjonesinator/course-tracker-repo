@@ -4,22 +4,23 @@
 #include <Arduino.h>
 #include <stdint.h>
 
-// Button pins
-#define LEFT_BUTTON_PIN 2
-#define RIGHT_BUTTON_PIN 3
+#define LONG_PRESS_TIME 2000
+#define BOUNCE_DELAY 100
+#define MAX_BUTTONS 10
 
 // Button struct
 typedef struct {
-    String label;
+    char label;
     uint8_t pin;
     bool pressed;
     bool longPress;
     uint64_t startTime;
 } Button;
 
-void initialiseButton(Button* button, String label, uint8_t pin);
-// void updateButton(String label, bool isPressed);
+void initialiseButton(Button* button, char label, uint8_t pin);
+void updateLongPress(char label);
 bool isButClicked(Button* button);
-void updateLongPresses();
+bool isLongPressed(Button* button);
+
 
 #endif // BUTTON_H

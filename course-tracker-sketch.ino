@@ -50,7 +50,7 @@ String getTimerDisplayFormat(long timer) { // takes timer value in seconds and o
 
 void setup() {
     lcdSetup(&lcd, true);
-    initialiseButton(&button, "B", BUTTON_PIN);
+    initialiseButton(&button, 'B', BUTTON_PIN);
 
 // TESTING
     Serial.begin(9600);
@@ -59,15 +59,19 @@ void setup() {
 
 void loop() {
 
-    if (millis() > (timer + 1) * 1000) { // happens every second
-        timer = (millis() - start_time) / 1000 * is_timer_running; // only have the timer working when is_timer_running is TRUE
+    if (millis() > (timer + 1) * 1000 && is_timer_running) { // happens every second
+        timer = (millis() - start_time) / 1000; // only have the timer working when is_timer_running is TRUE
     }
 
     lcdWrite(&lcd, CATAGORIES[selected_cat_i], 0);
     lcdWrite(&lcd, getTimerDisplayFormat(timer), 1);
 
-    if (isButClicked(&button)) {
+    if (isLongPressed(&button)) {
         start_time = millis();
+        is_timer_running = true;
+    }
+
+    if (isButClicked(&button)) {
         is_timer_running = !is_timer_running;
     }
 }
