@@ -4,9 +4,11 @@
 #include <Arduino.h>
 #include <stdint.h>
 
+
 #define LONG_PRESS_TIME 2000
 #define BOUNCE_DELAY 100
 #define MAX_BUTTONS 10
+
 
 // Button struct
 typedef struct {
