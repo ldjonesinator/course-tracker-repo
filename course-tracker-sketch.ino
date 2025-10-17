@@ -25,7 +25,7 @@ Button button;
 
 
 int CATAGORY_SIZE = 5;
-const String CATAGORIES[] = {"ENEL200", "ENEL220", "ENEL270", "ENEL280", "EMTH210"};
+const String CATAGORIES[] = {"ENEL200", "ENEL220", "ENEL260", "ENEL290", "EMTH211"};
 int selected_cat_i = 0;
 
 int cat_times[5] = {0, 0, 0, 0, 0}; // time in seconds
@@ -41,9 +41,31 @@ void setup() {
 
 void loop() {
 
-    updateTimer();
-    displayTimer(&lcd, CATAGORIES[selected_cat_i]);
-    detectTimerEvents(&button);
+    switch (deviceState) {
+        case CHOOSE:
+            lcdWrite(&lcd, CATAGORIES[selected_cat_i], 0);
+
+            if (isButClicked(&button)) {
+                selected_cat_i ++;
+            }
+            if (selected_cat_i >= CATAGORY_SIZE) {
+                selected_cat_i = 0;
+            }
+            if (isLongPressed(&button)) {
+                lcd.clear();
+                deviceState = TIMER;
+            }
+
+            break;
+
+        case TIMER:
+            updateTimer();
+            displayTimer(&lcd, CATAGORIES[selected_cat_i]);
+            detectTimerEvents(&button);
+            break;
+    }
+
+    
 
 
 
