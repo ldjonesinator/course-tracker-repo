@@ -1,7 +1,6 @@
 #include <Wire.h>
 
 // using namespace std;
-
 #include "button.h"
 #include "lcd.h"
 
@@ -20,19 +19,21 @@ int cat_times[5] = {0, 0, 0, 0, 0}; // time in seconds
 
 // timer variables
 unsigned long timer = 0; // timer for seconds
-unsigned long start_time;
+unsigned long startTime;
+unsigned long pauseStart;
+unsigned long pauseDuration = 0;
 
-bool is_timer_running = false;
+bool isTimerRunning = false;
 
 
 // returns the same number with zeros in front to reach the required amount of characters
-String getFixedNumberLength(int num, int required_char_amnt) {
-    if (String(num).length() >= required_char_amnt) { // error prevention with unsigned numbers
+String getFixedNumberLength(int num, int requiredCharAmnt) {
+    if (String(num).length() >= requiredCharAmnt) { // error prevention with unsigned numbers
         return String(num);
     }
 
     String zeros = "";
-    for (int i = 0; i < required_char_amnt - String(num).length(); i++) {
+    for (int i = 0; i < requiredCharAmnt - String(num).length(); i++) {
         zeros += "0";
     }
 
@@ -59,19 +60,30 @@ void setup() {
 
 void loop() {
 
-    if (millis() > (timer + 1) * 1000 && is_timer_running) { // happens every second
-        timer = (millis() - start_time) / 1000; // only have the timer working when is_timer_running is TRUE
+    if (millis() > (timer + 1) * 1000 && isTimerRunning) { // happens every second
+        timer = (millis() - (startTime + pauseDuration)) / 1000; // only have the timer working when isTimerRunning is TRUE
     }
 
     lcdWrite(&lcd, CATAGORIES[selected_cat_i], 0);
     lcdWrite(&lcd, getTimerDisplayFormat(timer), 1);
 
     if (isLongPressed(&button)) {
-        start_time = millis();
-        is_timer_running = true;
+        startTime = millis();
+        isTimerRunning = true;
+        pauseDuration = 0;
     }
 
     if (isButClicked(&button)) {
-        is_timer_running = !is_timer_running;
+        if (startTime == 0) { // remove this later when there's transitions
+            startTime = millis();
+        }
+        isTimerRunning = !isTimerRunning;
+        if (!isTimerRunning) {
+            pauseStart = millis();
+        } else if (pauseStart != 0) { // don't want the duration going up at the start
+            pauseDuration += millis() - pauseStart;
+            Serial.println(pauseDuration);
+        }
     }
+
 }
